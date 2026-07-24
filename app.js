@@ -1,13 +1,13 @@
 // ==========================================================================
-// MCP Market & Guidesoft Studio — Engine & Marketplace Controller
+// MCP Market — Complete Cloud Hub, Onboarding & Studio Engine
 // ==========================================================================
 
 const marketState = {
-  currentMode: 'marketplace', // 'marketplace' or 'studio'
+  currentMode: 'marketplace', // 'marketplace' | 'onboarding' | 'dashboard' | 'studio'
   selectedCategory: 'all',
   searchQuery: '',
+  onboardingStep: 1,
 
-  // Directory of Verified MCP Servers
   servers: [
     {
       id: 'postgres',
@@ -140,7 +140,7 @@ export async function POST(req: Request) {
   return result.toDataStreamResponse();
 }`,
     'mcp-config.json': `{
-  "version": "2.5.0",
+  "version": "2.6.0",
   "provider": "MCP Market Engine",
   "mcpServers": {
     "postgresql": { "command": "npx", "args": ["-y", "@modelcontextprotocol/server-postgres"] },
@@ -164,7 +164,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderSimulatedAppView();
 });
 
-// Top Navigation Mode Switcher (Marketplace vs Studio)
+// Top Navigation Mode Switcher (Marketplace vs Onboarding vs Dashboard vs Studio)
 function switchTopMode(mode) {
   marketState.currentMode = mode;
 
@@ -179,7 +179,42 @@ function switchTopMode(mode) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// Filter MCP Catalog Grid
+// Onboarding Wizard Controls (/signup/onboarding)
+function nextOnboardingStep(stepNum) {
+  marketState.onboardingStep = stepNum;
+
+  document.querySelectorAll('.step-item').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.onboard-step-card').forEach(c => c.classList.remove('active'));
+
+  const pill = document.getElementById(`step-pill-${stepNum}`);
+  const card = document.getElementById(`onboard-step-${stepNum}`);
+  if (pill) pill.classList.add('active');
+  if (card) card.classList.add('active');
+}
+
+function selectRole(elem) {
+  document.querySelectorAll('.role-card').forEach(c => c.classList.remove('active'));
+  elem.classList.add('active');
+}
+
+function selectClient(elem) {
+  document.querySelectorAll('.client-card').forEach(c => c.classList.remove('active'));
+  elem.classList.add('active');
+}
+
+function copyApiKey() {
+  const key = 'mcp_live_pk_8f92a10b4c7395729f4f76db2026';
+  navigator.clipboard.writeText(key).then(() => {
+    alert(`Copied MCP Cloud API Key to clipboard:\n\n${key}`);
+  });
+}
+
+function completeOnboarding() {
+  alert('Welcome to MCP Market Hub! Your cloud environment is fully configured for @happies2012.');
+  switchTopMode('dashboard');
+}
+
+// Marketplace Controls
 function filterMcpCatalog() {
   const searchInput = document.getElementById('market-search-input');
   marketState.searchQuery = searchInput ? searchInput.value.toLowerCase().trim() : '';
@@ -193,7 +228,6 @@ function filterCategory(category, btnElem) {
   renderMarketplaceGrid();
 }
 
-// Render Marketplace Card Grid
 function renderMarketplaceGrid() {
   const container = document.getElementById('market-cards-grid');
   const countLabel = document.getElementById('catalog-count-label');
@@ -245,7 +279,6 @@ function renderMarketplaceGrid() {
   if (window.lucide) lucide.createIcons();
 }
 
-// Copy Installation Command
 function copyInstallCmd(pkgName) {
   const cmd = `npx -y ${pkgName}`;
   navigator.clipboard.writeText(cmd).then(() => {
@@ -253,7 +286,6 @@ function copyInstallCmd(pkgName) {
   });
 }
 
-// Attach MCP Server to Studio Builder
 function attachMcpToStudio(serverName, pkgName) {
   const srvId = serverName.toLowerCase().replace(/\s+/g, '-');
   builderState.mcpServers.push({
@@ -264,11 +296,6 @@ function attachMcpToStudio(serverName, pkgName) {
   renderMcpServerList();
   switchTopMode('studio');
   logTerminal(`[MCP-MARKETPLACE] Attached \`${pkgName}\` to Studio workspace.`, 'success');
-}
-
-// Open Publish Modal
-function openPublishModal() {
-  alert('Submit your custom MCP Server package (e.g. npm package or GitHub repo) to list on MCP Market!');
 }
 
 // Studio Logic Helpers
@@ -340,59 +367,6 @@ function renderMcpServerList() {
   container.innerHTML = html;
 }
 
-function applyRecipe(recipeType) {
-  const promptInput = document.getElementById('prompt-input');
-  if (!promptInput) return;
-
-  if (recipeType === 'saas') {
-    promptInput.value = "Build a subscription SaaS using Vercel AI SDK streamText, Stripe MCP checkout, PostgreSQL vector storage, and Magic UI Border Beam components.";
-  } else if (recipeType === 'ai-chat') {
-    promptInput.value = "Create a conversational RAG AI agent with Vercel AI SDK, PostgreSQL embeddings MCP, and Magic UI Shine Buttons.";
-  } else if (recipeType === 'whatsapp') {
-    promptInput.value = "Assemble an autonomous WhatsApp lead capture engine with Vercel Edge Functions and WhatsApp MCP gateway.";
-  }
-}
-
-function toggleVoiceInput() {
-  builderState.isRecordingVoice = !builderState.isRecordingVoice;
-  const btn = document.getElementById('voice-btn');
-
-  if (builderState.isRecordingVoice) {
-    btn.style.color = '#f43f5e';
-    logTerminal('Listening for prompt dictation...', 'info');
-    setTimeout(() => {
-      applyRecipe('saas');
-      toggleVoiceInput();
-      logTerminal('Voice prompt transcribed into Vercel AI SDK spec.', 'success');
-    }, 2500);
-  } else {
-    btn.style.color = 'inherit';
-  }
-}
-
-function switchCanvasView(viewName) {
-  builderState.currentCanvasView = viewName;
-  document.querySelectorAll('.cmode-btn').forEach(btn => btn.classList.remove('active'));
-  document.querySelectorAll('.canvas-view-pane').forEach(pane => pane.classList.remove('active'));
-
-  const btn = document.getElementById(`cmode-${viewName}`);
-  const pane = document.getElementById(`pane-${viewName}`);
-  if (btn) btn.classList.add('active');
-  if (pane) pane.classList.add('active');
-}
-
-function setViewportDevice(device) {
-  builderState.currentDevice = device;
-  document.querySelectorAll('.cdevice-btn').forEach(btn => btn.classList.remove('active'));
-  const btn = document.getElementById(`cdev-${device}`);
-  if (btn) btn.classList.add('active');
-
-  const canvasArea = document.getElementById('viewport-canvas-area');
-  if (canvasArea) {
-    canvasArea.className = `viewport-canvas-area viewport-${device}`;
-  }
-}
-
 function renderSimulatedAppView() {
   const frame = document.getElementById('simulated-app-frame');
   if (!frame) return;
@@ -400,17 +374,12 @@ function renderSimulatedAppView() {
   frame.innerHTML = `
     <div class="app-comp-card comp-hero magic-card">
       <div class="border-beam"></div>
-      <h2 style="color:#fff; font-size:1.3rem;">MCP Market Zero-Code Platform</h2>
-      <p style="font-size:0.8rem; color:#9ca3af; margin: 0.4rem 0 0.8rem 0;">Powered by Model Context Protocol (MCP) & Edge Functions.</p>
+      <h2 style="color:#fff; font-size:1.3rem;">MCP Market Cloud Platform</h2>
+      <p style="font-size:0.8rem; color:#9ca3af; margin: 0.4rem 0 0.8rem 0;">User Account: @happies2012 • 3 Active MCP Cloud Servers</p>
       <button class="btn-magic primary magic-shine-btn" onclick="triggerAppAction('checkout')">
         <div class="shine-effect"></div>
         <span>Invoke Stripe MCP Checkout ($29/mo)</span>
       </button>
-    </div>
-
-    <div class="app-comp-card magic-card" style="background:rgba(6, 182, 212, 0.08); border-color: rgba(6, 182, 212, 0.3);">
-      <h4 style="color:#06b6d4; font-size:0.85rem; margin-bottom:0.4rem;">PostgreSQL MCP Vector Storage</h4>
-      <p style="font-size:0.75rem; color:#9ca3af;">Connected via Vercel AI SDK tool binding • 0.3ms query latency</p>
     </div>
   `;
 }
@@ -449,24 +418,9 @@ function startAgenticWorkflow() {
       logTerminal(step.text, step.type);
       if (step.type === 'success') {
         openFileInEditor('app/api/agent/route.ts');
-        switchCanvasView('preview');
       }
     }, step.delay);
   });
-}
-
-function runInspectorToolCall() {
-  const srvSelect = document.getElementById('inspector-mcp-select');
-  const jsonOut = document.getElementById('inspector-json-output');
-  const srv = srvSelect ? srvSelect.value : 'postgres';
-
-  logTerminal(`[MCP-INSPECTOR] Executing tool call on server \`${srv}\`...`, 'info');
-
-  if (jsonOut) {
-    jsonOut.innerText = `{\n  "jsonrpc": "2.0",\n  "result": {\n    "provider": "Vercel AI SDK",\n    "mcp_server": "${srv}",\n    "status": "connected",\n    "timestamp": "${new Date().toISOString()}"\n  },\n  "id": 9901\n}`;
-  }
-
-  logTerminal(`[MCP-INSPECTOR] Vercel AI SDK Tool Call Returned 200 OK.`, 'success');
 }
 
 function logTerminal(message, type = 'info') {
@@ -482,15 +436,6 @@ function logTerminal(message, type = 'info') {
 
   body.appendChild(entry);
   body.scrollTop = body.scrollHeight;
-}
-
-function clearTerminalLogs() {
-  const body = document.getElementById('terminal-body');
-  if (body) body.innerHTML = '';
-}
-
-function closeDetailModal() {
-  document.getElementById('detail-modal').classList.remove('active');
 }
 
 function copyCurrentCode() {
