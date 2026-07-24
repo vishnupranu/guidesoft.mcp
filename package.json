@@ -1,5 +1,5 @@
 {
-  "name": "@lobehub/lobehub",
+  "name": "@guidesoft/mcp-market",
   "version": "2.2.3",
   "description": "LobeHub - an open-source,comprehensive AI Agent framework that supports speech synthesis, multimodal, and extensible Function Call plugin system. Supports one-click free deployment of your private ChatGPT/LLM web application.",
   "keywords": [
@@ -14,7 +14,7 @@
     "tts",
     "stt"
   ],
-  "homepage": "https://github.com/lobehub/lobehub",
+  "homepage": "https://github.com/vishnupranu/guidesoft.mcp",
   "bugs": {
     "url": "https://github.com/lobehub/lobehub/issues/new/choose"
   },

@@ -4,8 +4,8 @@ const manifest = async (): Promise<MetadataRoute.Manifest> => {
   // Skip heavy module compilation in development
   if (process.env.NODE_ENV === 'development') {
     return {
-      background_color: '#000000',
-      description: 'LobeHub Development',
+      background_color: '#0f172a',
+      description: 'MCP Market by Guidesoft — Zero-Code AI Agent Platform',
       display: 'standalone',
       icons: [
         {
@@ -14,8 +14,8 @@ const manifest = async (): Promise<MetadataRoute.Manifest> => {
           type: 'image/png',
         },
       ],
-      name: 'LobeHub',
-      short_name: 'LobeHub',
+      name: 'MCP Market',
+      short_name: 'MCP Market',
       start_url: '/',
       theme_color: '#000000',
     };
