@@ -1,9 +1,10 @@
 // ==========================================================================
-// MCP Market — Complete Cloud Hub, Onboarding & Studio Engine
+// MCP Market & Guidesoft Studio — Engine & Theme Switcher Controller
 // ==========================================================================
 
 const marketState = {
   currentMode: 'marketplace', // 'marketplace' | 'onboarding' | 'dashboard' | 'studio'
+  theme: 'dark', // 'dark' | 'light'
   selectedCategory: 'all',
   searchQuery: '',
   onboardingStep: 1,
@@ -105,11 +106,9 @@ const builderState = {
   currentLeftTab: 'files',
   currentCanvasView: 'preview',
   currentDevice: 'desktop',
-  isAgentRunning: false,
-  isRecordingVoice: false,
 
   files: {
-    'app/api/agent/route.ts': `// Vercel AI SDK + MCP Router
+    'app/api/agent/route.ts': `// Vercel AI SDK + MCP Tool Calling Router
 import { streamText, convertToModelMessages, isStepCount, tool } from 'ai';
 import { google } from '@ai-sdk/google';
 import { z } from 'zod';
@@ -138,14 +137,6 @@ export async function POST(req: Request) {
   });
 
   return result.toDataStreamResponse();
-}`,
-    'mcp-config.json': `{
-  "version": "2.6.0",
-  "provider": "MCP Market Engine",
-  "mcpServers": {
-    "postgresql": { "command": "npx", "args": ["-y", "@modelcontextprotocol/server-postgres"] },
-    "stripe": { "command": "npx", "args": ["-y", "@modelcontextprotocol/server-stripe"] }
-  }
 }`
   },
 
@@ -164,7 +155,29 @@ document.addEventListener('DOMContentLoaded', () => {
   renderSimulatedAppView();
 });
 
-// Top Navigation Mode Switcher (Marketplace vs Onboarding vs Dashboard vs Studio)
+// 🌙 Dark / 🌞 Light Mode Theme Toggle
+function toggleDarkLightMode() {
+  const body = document.body;
+  const isDark = body.classList.contains('theme-dark');
+
+  if (isDark) {
+    body.classList.remove('theme-dark');
+    body.classList.add('theme-light');
+    marketState.theme = 'light';
+    document.getElementById('theme-text').innerText = 'Light Mode';
+    document.getElementById('theme-icon-sun').style.display = 'inline-block';
+    document.getElementById('theme-icon-moon').style.display = 'none';
+  } else {
+    body.classList.remove('theme-light');
+    body.classList.add('theme-dark');
+    marketState.theme = 'dark';
+    document.getElementById('theme-text').innerText = 'Dark Mode';
+    document.getElementById('theme-icon-sun').style.display = 'none';
+    document.getElementById('theme-icon-moon').style.display = 'inline-block';
+  }
+}
+
+// Navigation Mode Switcher
 function switchTopMode(mode) {
   marketState.currentMode = mode;
 
@@ -179,7 +192,7 @@ function switchTopMode(mode) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// Onboarding Wizard Controls (/signup/onboarding)
+// Onboarding Controls
 function nextOnboardingStep(stepNum) {
   marketState.onboardingStep = stepNum;
 
@@ -205,7 +218,7 @@ function selectClient(elem) {
 function copyApiKey() {
   const key = 'mcp_live_pk_8f92a10b4c7395729f4f76db2026';
   navigator.clipboard.writeText(key).then(() => {
-    alert(`Copied MCP Cloud API Key to clipboard:\n\n${key}`);
+    alert(`Copied MCP Cloud API Key:\n\n${key}`);
   });
 }
 
@@ -267,7 +280,8 @@ function renderMarketplaceGrid() {
           <button class="btn-magic secondary btn-install" onclick="copyInstallCmd('${srv.package}')">
             <i data-lucide="copy"></i> Copy NPX
           </button>
-          <button class="btn-magic primary btn-install" onclick="attachMcpToStudio('${srv.name}', '${srv.package}')">
+          <button class="btn-magic primary magic-shine-btn btn-install" onclick="attachMcpToStudio('${srv.name}', '${srv.package}')">
+            <div class="shine-effect"></div>
             <i data-lucide="plus"></i> Attach to Studio
           </button>
         </div>
@@ -374,8 +388,8 @@ function renderSimulatedAppView() {
   frame.innerHTML = `
     <div class="app-comp-card comp-hero magic-card">
       <div class="border-beam"></div>
-      <h2 style="color:#fff; font-size:1.3rem;">MCP Market Cloud Platform</h2>
-      <p style="font-size:0.8rem; color:#9ca3af; margin: 0.4rem 0 0.8rem 0;">User Account: @happies2012 • 3 Active MCP Cloud Servers</p>
+      <h2 style="color:var(--text-primary); font-size:1.3rem;">MCP Market Cloud Platform</h2>
+      <p style="font-size:0.8rem; color:var(--text-muted); margin: 0.4rem 0 0.8rem 0;">User Account: @happies2012 • 3 Active MCP Cloud Servers</p>
       <button class="btn-magic primary magic-shine-btn" onclick="triggerAppAction('checkout')">
         <div class="shine-effect"></div>
         <span>Invoke Stripe MCP Checkout ($29/mo)</span>
