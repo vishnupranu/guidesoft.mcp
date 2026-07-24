@@ -1,415 +1,148 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MCP Market & Studio — 21st.dev & Magic UI Component Platform</title>
-  <!-- Google Fonts & Icons -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <!-- Main Stylesheet (21st.dev + Magic UI Dark & Light Mode Theme) -->
-  <link rel="stylesheet" href="styles.css">
-</head>
-<body class="theme-dark magicui-bg">
-  
-  <!-- Magic UI Ambient Glow Background Effects -->
-  <div class="ambient-glow glow-1"></div>
-  <div class="ambient-glow glow-2"></div>
-  <div class="animated-grid-bg"></div>
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="shortcut icon" href="/favicon-32x32.ico" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <!--SEO_META-->
+    <style>
+      html body {
+        background: #f8f8f8;
+      }
+      html[data-theme='dark'] body {
+        background-color: #000;
+      }
+      #loading-screen {
+        position: fixed;
+        inset: 0;
+        z-index: 99999;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: inherit;
+        gap: 12px;
+      }
+      @keyframes loading-draw {
+        0% { stroke-dashoffset: 1000; }
+        100% { stroke-dashoffset: 0; }
+      }
+      @keyframes loading-fill {
+        30% { fill-opacity: 0.05; }
+        100% { fill-opacity: 1; }
+      }
+      #loading-brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: #1f1f1f;
+      }
+      #loading-brand svg path {
+        fill: currentcolor;
+        fill-opacity: 0;
+        stroke: currentcolor;
+        stroke-dasharray: 1000;
+        stroke-dashoffset: 1000;
+        stroke-width: 0.25em;
+        animation:
+          loading-draw 2s cubic-bezier(0.4, 0, 0.2, 1) infinite,
+          loading-fill 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+      }
+      html[data-theme='dark'] #loading-brand {
+        color: #f0f0f0;
+      }
+    </style>
+    <script>
+      (function () {
+        function supportsImportMaps() {
+          return (
+            typeof HTMLScriptElement !== 'undefined' &&
+            typeof HTMLScriptElement.supports === 'function' &&
+            HTMLScriptElement.supports('importmap')
+          );
+        }
 
-  <div id="app" class="builder-app-container">
-    
-    <!-- Top Navigation Header -->
-    <header class="app-header glass-card">
-      <div class="header-left">
-        <div class="brand-logo">
-          <div class="logo-icon-box shine-box">
-            <i data-lucide="sparkles"></i>
-          </div>
-          <div class="brand-titles">
-            <span class="brand-name">MCP<span class="brand-accent">.Market</span></span>
-            <span class="magicui-badge">21ST.DEV & MAGIC UI</span>
-          </div>
-        </div>
+        function supportsCascadeLayers() {
+          var el = document.createElement('div');
+          el.className = '__layer_test__';
+          el.style.position = 'absolute';
+          el.style.left = '-99999px';
+          el.style.top = '-99999px';
 
-        <!-- Main Mode Navigation Switcher -->
-        <nav class="main-mode-nav">
-          <button class="mnav-btn active" id="mnav-marketplace" onclick="switchTopMode('marketplace')">
-            <i data-lucide="grid"></i> Marketplace
-          </button>
-          <button class="mnav-btn" id="mnav-onboarding" onclick="switchTopMode('onboarding')">
-            <i data-lucide="user-plus"></i> Onboarding
-          </button>
-          <button class="mnav-btn" id="mnav-dashboard" onclick="switchTopMode('dashboard')">
-            <i data-lucide="layout-dashboard"></i> @happies2012 Hub
-          </button>
-          <button class="mnav-btn" id="mnav-studio" onclick="switchTopMode('studio')">
-            <i data-lucide="cpu"></i> Agentic Studio
-          </button>
-        </nav>
+          var style = document.createElement('style');
+          style.textContent =
+            '@layer a, b;' +
+            '@layer a { .__layer_test__ { color: rgb(1, 2, 3); } }' +
+            '@layer b { .__layer_test__ { color: rgb(4, 5, 6); } }';
+
+          document.documentElement.append(style);
+          document.documentElement.append(el);
+
+          var color = getComputedStyle(el).color;
+
+          el.remove();
+          style.remove();
+
+          return color === 'rgb(4, 5, 6)';
+        }
+
+        if (!(supportsImportMaps() && supportsCascadeLayers())) {
+          window.location.href = '/not-compatible.html';
+          return;
+        }
+
+        var theme = 'system';
+        try {
+          theme = localStorage.getItem('theme') || 'system';
+        } catch (_) {}
+        var systemTheme =
+          window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+            ? 'dark'
+            : 'light';
+        var resolvedTheme = theme === 'system' ? systemTheme : theme;
+        if (resolvedTheme === 'dark' || resolvedTheme === 'light') {
+          document.documentElement.setAttribute('data-theme', resolvedTheme);
+        }
+
+        var hl = new URLSearchParams(location.search).get('hl');
+        var m = document.cookie.match(/(?:^|;\s*)LOBE_LOCALE=([^;]*)/);
+        var cookie = m ? decodeURIComponent(m[1]) : '';
+        var locale = hl || cookie || navigator.language || 'en-US';
+        if (locale === 'auto') locale = navigator.language || 'en-US';
+        if (hl && !cookie) {
+          document.cookie =
+            'LOBE_LOCALE=' + encodeURIComponent(hl) + ';path=/;max-age=7776000;SameSite=Lax';
+        }
+        document.documentElement.lang = locale;
+        var rtl = ['ar', 'arc', 'dv', 'fa', 'ha', 'he', 'khw', 'ks', 'ku', 'ps', 'ur', 'yi'];
+        document.documentElement.dir =
+          rtl.indexOf(locale.split('-')[0].toLowerCase()) >= 0 ? 'rtl' : 'ltr';
+      })();
+    </script>
+    <script>
+      window.__SERVER_CONFIG__ = undefined; /* SERVER_CONFIG */
+    </script>
+  </head>
+
+  <body>
+    <div id="loading-screen">
+      <div id="loading-brand" aria-label="Loading MCP Market" role="status">
+        <!-- Guidesoft MCP Market Brand Loading Screen -->
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" width="44" height="44" fill="none" style="flex:none;">
+          <rect width="40" height="40" rx="10" fill="#6366f1"/>
+          <path d="M20 8L24 16H32L26 21L28 30L20 25L12 30L14 21L8 16H16L20 8Z" fill="white" opacity="0.95"/>
+        </svg>
+        <span style="font-family:'Inter',system-ui,sans-serif;font-size:1.35rem;font-weight:800;letter-spacing:-0.02em;">
+          MCP<span style="color:#06b6d4;">Market</span>
+        </span>
+        <span style="font-family:'Inter',system-ui,sans-serif;font-size:0.7rem;font-weight:600;opacity:0.5;margin-left:4px;letter-spacing:0.05em;">by Guidesoft</span>
       </div>
+    </div>
+    <div id="root" style="height: 100%"></div>
 
-      <div class="header-actions">
-        <!-- 🌙 Dark / 🌞 Light Mode Switcher Button -->
-        <button class="btn-theme-toggle" id="theme-toggle-btn" onclick="toggleDarkLightMode()" title="Toggle Dark / Light Theme">
-          <i data-lucide="sun" id="theme-icon-sun" style="display:none;"></i>
-          <i data-lucide="moon" id="theme-icon-moon"></i>
-          <span id="theme-text">Dark Mode</span>
-        </button>
-
-        <div class="status-pill active border-beam-sm">
-          <span class="pulse-dot"></span>
-          <span>500+ Verified MCPs</span>
-        </div>
-
-        <button class="btn-magic primary magic-shine-btn" onclick="switchTopMode('studio')">
-          <div class="shine-effect"></div>
-          <i data-lucide="wand-2"></i>
-          <span>Launch Studio</span>
-        </button>
-      </div>
-    </header>
-
-    <!-- MODE 1: MCP MARKETPLACE LANDING PAGE (21st.dev & Magic UI Grid) -->
-    <main class="page-view active" id="view-marketplace">
-      <section class="market-hero">
-        <div class="hero-badge-pill border-beam-sm">
-          <i data-lucide="sparkles" class="text-amber"></i> Store, Version & Sync AI Agent Skills in the Cloud
-        </div>
-        <h1 class="market-hero-title">Discover, Install & Orchestrate <br><span class="gradient-text">MCP Servers</span> for AI Agents</h1>
-        <p class="market-hero-sub">Connect Anthropic Claude, Vercel AI SDK, or custom LLM agents to databases, APIs, and tools via open JSON-RPC 2.0 standards.</p>
-
-        <!-- 21st.dev Search & Form Input Deck -->
-        <div class="market-search-deck magic-card">
-          <div class="border-beam"></div>
-          <div class="search-input-box 21st-input-group">
-            <i data-lucide="search" class="search-icon"></i>
-            <input type="text" id="market-search-input" class="magic-input" placeholder="Search 500+ MCP servers (PostgreSQL, Stripe, GitHub, Notion, WhatsApp)..." oninput="filterMcpCatalog()">
-            <button class="btn-magic primary magic-shine-btn" onclick="filterMcpCatalog()">
-              <div class="shine-effect"></div> Search
-            </button>
-          </div>
-          <div class="category-tags-bar">
-            <button class="cat-tag active" onclick="filterCategory('all', this)">All Servers</button>
-            <button class="cat-tag" onclick="filterCategory('database', this)">Databases</button>
-            <button class="cat-tag" onclick="filterCategory('developer', this)">Dev Tools</button>
-            <button class="cat-tag" onclick="filterCategory('saas', this)">Payments & SaaS</button>
-            <button class="cat-tag" onclick="filterCategory('ai', this)">Voice & Search AI</button>
-            <button class="cat-tag" onclick="filterCategory('chat', this)">Communication</button>
-          </div>
-        </div>
-      </section>
-
-      <!-- Magic UI Bento Grid Directory Section -->
-      <section class="market-grid-section">
-        <div class="section-title-row">
-          <h2><i data-lucide="package"></i> Featured MCP Servers (21st.dev Bento Grid)</h2>
-          <span class="results-count" id="catalog-count-label">Showing 8 verified servers</span>
-        </div>
-        <div class="market-cards-grid bento-grid" id="market-cards-grid"></div>
-      </section>
-    </main>
-
-    <!-- MODE 2: ONBOARDING FLOW (/signup/onboarding - 21st.dev Form Components) -->
-    <main class="page-view" id="view-onboarding">
-      <div class="onboarding-container">
-        
-        <!-- Onboarding Header Stepper -->
-        <div class="onboarding-stepper magic-card">
-          <div class="border-beam"></div>
-          <div class="step-item active" id="step-pill-1">
-            <span class="step-num">1</span>
-            <span>Developer Profile</span>
-          </div>
-          <div class="step-line"></div>
-          <div class="step-item" id="step-pill-2">
-            <span class="step-num">2</span>
-            <span>AI Client Setup</span>
-          </div>
-          <div class="step-line"></div>
-          <div class="step-item" id="step-pill-3">
-            <span class="step-num">3</span>
-            <span>Attach MCPs</span>
-          </div>
-          <div class="step-line"></div>
-          <div class="step-item" id="step-pill-4">
-            <span class="step-num">4</span>
-            <span>API Key</span>
-          </div>
-        </div>
-
-        <!-- Onboarding Form Cards -->
-        <div class="onboarding-card-wrapper">
-          
-          <!-- STEP 1: Developer Profile Form -->
-          <div class="onboard-step-card magic-card active" id="onboard-step-1">
-            <div class="border-beam"></div>
-            <h2><i data-lucide="user-check" class="text-cyan"></i> Select Your Developer Persona</h2>
-            <p>Help us tailor your MCP cloud sync environment.</p>
-
-            <div class="21st-form-group">
-              <label class="form-label">Full Name</label>
-              <input type="text" class="magic-input" placeholder="e.g. Vishnu Pranu" value="Vishnu Pranu">
-            </div>
-
-            <div class="role-grid">
-              <div class="role-card magic-card active" onclick="selectRole(this)">
-                <i data-lucide="code-2"></i>
-                <strong>Full-Stack Engineer</strong>
-                <p>Building Next.js / Node.js AI products with Vercel AI SDK</p>
-              </div>
-              <div class="role-card magic-card" onclick="selectRole(this)">
-                <i data-lucide="brain"></i>
-                <strong>AI & RAG Specialist</strong>
-                <p>Deploying vector databases & LLM agent workflows</p>
-              </div>
-              <div class="role-card magic-card" onclick="selectRole(this)">
-                <i data-lucide="building-2"></i>
-                <strong>Enterprise Architect</strong>
-                <p>Scaling internal MCP tool gateways across teams</p>
-              </div>
-            </div>
-
-            <button class="btn-magic primary magic-shine-btn style-step-btn" onclick="nextOnboardingStep(2)">
-              <div class="shine-effect"></div> Continue to AI Client Setup <i data-lucide="arrow-right"></i>
-            </button>
-          </div>
-
-          <!-- STEP 2: AI Client Setup -->
-          <div class="onboard-step-card magic-card" id="onboard-step-2">
-            <div class="border-beam"></div>
-            <h2><i data-lucide="terminal" class="text-cyan"></i> Connect Your Preferred AI Client</h2>
-            <p>MCP Market works out-of-the-box with all major AI editors & SDKs.</p>
-
-            <div class="client-grid">
-              <div class="client-card magic-card active" onclick="selectClient(this)">
-                <i data-lucide="zap"></i>
-                <strong>Vercel AI SDK</strong>
-                <span>Next.js 14 App Router + streamText</span>
-              </div>
-              <div class="client-card magic-card" onclick="selectClient(this)">
-                <i data-lucide="bot"></i>
-                <strong>Anthropic Claude Desktop</strong>
-                <span>claude_desktop_config.json</span>
-              </div>
-              <div class="client-card magic-card" onclick="selectClient(this)">
-                <i data-lucide="mouse-pointer"></i>
-                <strong>Cursor IDE</strong>
-                <span>.cursor/mcp.json</span>
-              </div>
-            </div>
-
-            <div class="step-btn-group">
-              <button class="btn-magic secondary" onclick="nextOnboardingStep(1)">Back</button>
-              <button class="btn-magic primary magic-shine-btn" onclick="nextOnboardingStep(3)">
-                <div class="shine-effect"></div> Continue to MCP Selection <i data-lucide="arrow-right"></i>
-              </button>
-            </div>
-          </div>
-
-          <!-- STEP 3: Initial MCP Selection -->
-          <div class="onboard-step-card magic-card" id="onboard-step-3">
-            <div class="border-beam"></div>
-            <h2><i data-lucide="package-plus" class="text-cyan"></i> Select Initial MCP Servers to Cloud Sync</h2>
-            <p>These servers will be auto-configured for your `@happies2012` account.</p>
-
-            <div class="mcp-select-list">
-              <label class="mcp-chk-item magic-card">
-                <input type="checkbox" class="magic-checkbox" checked>
-                <div>
-                  <strong>PostgreSQL MCP Server</strong>
-                  <p>Relational query execution & vector embeddings</p>
-                </div>
-              </label>
-              <label class="mcp-chk-item magic-card">
-                <input type="checkbox" class="magic-checkbox" checked>
-                <div>
-                  <strong>Stripe Payments MCP Server</strong>
-                  <p>Automated subscription checkout sessions & billing</p>
-                </div>
-              </label>
-              <label class="mcp-chk-item magic-card">
-                <input type="checkbox" class="magic-checkbox" checked>
-                <div>
-                  <strong>GitHub MCP Server</strong>
-                  <p>Repo file search, PR creation, and issue management</p>
-                </div>
-              </label>
-            </div>
-
-            <div class="step-btn-group">
-              <button class="btn-magic secondary" onclick="nextOnboardingStep(2)">Back</button>
-              <button class="btn-magic primary magic-shine-btn" onclick="nextOnboardingStep(4)">
-                <div class="shine-effect"></div> Generate API Key <i data-lucide="arrow-right"></i>
-              </button>
-            </div>
-          </div>
-
-          <!-- STEP 4: API Key Generation -->
-          <div class="onboard-step-card magic-card" id="onboard-step-4">
-            <div class="border-beam"></div>
-            <h2><i data-lucide="key" class="text-emerald"></i> Your Personal Cloud MCP API Key</h2>
-            <p>Use this secret token in your environment variables to authenticate with MCP Market Hub.</p>
-            
-            <div class="api-key-box magic-card">
-              <div class="border-beam"></div>
-              <code>mcp_live_pk_8f92a10b4c7395729f4f76db2026</code>
-              <button class="btn-sm secondary" onclick="copyApiKey()"><i data-lucide="copy"></i> Copy</button>
-            </div>
-
-            <div class="step-btn-group">
-              <button class="btn-magic success magic-shine-btn" onclick="completeOnboarding()">
-                <div class="shine-effect"></div>
-                <i data-lucide="check-circle"></i> Launch @happies2012 Hub Dashboard
-              </button>
-            </div>
-          </div>
-
-        </div>
-      </div>
-    </main>
-
-    <!-- MODE 3: HAPPIES2012 DASHBOARD (/happies2012/mcp - Bento Cards & Telemetry) -->
-    <main class="page-view" id="view-dashboard">
-      <div class="dash-container">
-        
-        <!-- User Profile Card -->
-        <div class="dash-profile-card magic-card">
-          <div class="border-beam"></div>
-          <div class="user-avatar-box">
-            <div class="avatar-circle">H</div>
-            <div>
-              <h2 class="user-handle">happies2012 <span class="badge-pro">PRO CLOUD HUB</span></h2>
-              <p class="user-email">happies2012@guidesoft.mcp.io • Account ID: `usr_happies_88`</p>
-            </div>
-          </div>
-          <div class="user-quick-stats">
-            <div class="stat-pill"><span class="stat-val">14,280</span><span class="stat-lbl">Total MCP Calls</span></div>
-            <div class="stat-pill"><span class="stat-val">12ms</span><span class="stat-lbl">Avg Latency</span></div>
-            <div class="stat-pill"><span class="stat-val">3</span><span class="stat-lbl">Active Servers</span></div>
-          </div>
-        </div>
-
-        <!-- Bento Grid Telemetry Cards -->
-        <div class="dash-metrics-grid bento-grid">
-          <div class="metric-card magic-card">
-            <div class="border-beam"></div>
-            <div class="metric-header">
-              <span>PostgreSQL MCP Server</span>
-              <span class="status-online">● Online (us-east-1)</span>
-            </div>
-            <div class="metric-body">
-              <div class="metric-val">8,940 calls</div>
-              <p>Connected to database `appdb` • 0.3ms latency</p>
-            </div>
-            <button class="btn-sm secondary" onclick="switchTopMode('studio')">Inspect SQL</button>
-          </div>
-
-          <div class="metric-card magic-card">
-            <div class="border-beam"></div>
-            <div class="metric-header">
-              <span>Stripe Payments MCP</span>
-              <span class="status-online">● Online (Vercel Edge)</span>
-            </div>
-            <div class="metric-body">
-              <div class="metric-val">3,820 calls</div>
-              <p>Active webhook listener • Stripe live mode</p>
-            </div>
-            <button class="btn-sm secondary" onclick="switchTopMode('studio')">Manage Keys</button>
-          </div>
-
-          <div class="metric-card magic-card">
-            <div class="border-beam"></div>
-            <div class="metric-header">
-              <span>GitHub API MCP</span>
-              <span class="status-online">● Online</span>
-            </div>
-            <div class="metric-body">
-              <div class="metric-val">1,520 calls</div>
-              <p>Repo: `vishnupranu/guidesoft.mcp`</p>
-            </div>
-            <button class="btn-sm secondary" onclick="switchTopMode('studio')">View PRs</button>
-          </div>
-        </div>
-
-        <!-- Deployment Console Log -->
-        <div class="dash-console-card magic-card">
-          <div class="border-beam"></div>
-          <div class="console-title"><i data-lucide="terminal"></i> Cloud MCP Telemetry & Event Stream (@happies2012)</div>
-          <div class="console-logs" id="dash-console-logs">
-            <div class="clog info">[10:14:02] [POSTGRES-MCP] Received query tool call from Vercel AI SDK.</div>
-            <div class="clog success">[10:14:02] [POSTGRES-MCP] Returned 2 rows (0.2ms).</div>
-            <div class="clog info">[10:15:19] [STRIPE-MCP] Created checkout session: cs_live_happies_99.</div>
-            <div class="clog ready">[10:16:00] [SYNC-ENGINE] Synced 3 MCP servers to cloud hub.</div>
-          </div>
-        </div>
-
-      </div>
-    </main>
-
-    <!-- MODE 4: AGENTIC STUDIO BUILDER -->
-    <main class="page-view" id="view-studio">
-      <div class="builder-workspace">
-        <aside class="sidebar-left glass-sidebar">
-          <div class="sidebar-nav-tabs">
-            <button class="snav-btn active" id="stab-files" onclick="switchLeftTab('files')"><i data-lucide="folder-tree"></i> Files</button>
-            <button class="snav-btn" id="stab-mcp" onclick="switchLeftTab('mcp')"><i data-lucide="cpu"></i> Active MCPs</button>
-            <button class="snav-btn" id="stab-agents" onclick="switchLeftTab('agents')"><i data-lucide="bot"></i> Swarm</button>
-          </div>
-          <div class="stab-content active" id="content-files">
-            <div class="panel-header"><span>PROJECT WORKSPACE</span></div>
-            <div class="file-tree" id="file-tree-container"></div>
-          </div>
-          <div class="stab-content" id="content-mcp">
-            <div class="panel-header"><span>ATTACHED MCP SERVERS</span></div>
-            <div class="mcp-server-list" id="mcp-server-list"></div>
-          </div>
-          <div class="stab-content" id="content-agents">
-            <div class="panel-header"><span>SWARM AGENTS</span></div>
-            <div class="agent-swarm-list">
-              <div class="agent-card magic-card active"><div class="border-beam"></div><strong>Architect Agent</strong></div>
-            </div>
-          </div>
-        </aside>
-
-        <section class="panel-center">
-          <div class="command-deck-card magic-card">
-            <div class="border-beam"></div>
-            <div class="deck-header"><div class="deck-title"><i data-lucide="sparkles"></i> Studio Specification Deck</div></div>
-            <div class="deck-input-wrapper">
-              <textarea id="prompt-input" class="magic-input" rows="3" placeholder="Instruct AI Agent..."></textarea>
-              <div class="deck-controls">
-                <button class="btn-magic primary magic-shine-btn" onclick="startAgenticWorkflow()">
-                  <div class="shine-effect"></div> Build Stack
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div class="viewport-canvas-area viewport-desktop" id="viewport-canvas-area">
-            <div class="canvas-view-pane active" id="pane-preview">
-              <div class="simulated-app-frame magic-card" id="simulated-app-frame"></div>
-            </div>
-          </div>
-        </section>
-
-        <aside class="sidebar-right glass-sidebar">
-          <div class="code-editor-panel">
-            <div class="editor-header"><div class="current-filename" id="current-filename"><i data-lucide="file-code"></i> <span>app/api/agent/route.ts</span></div></div>
-            <div class="editor-code-container"><pre><code id="editor-code-content" class="code-view"></code></pre></div>
-          </div>
-          <div class="terminal-panel">
-            <div class="terminal-header"><span><i data-lucide="terminal"></i> VERCEL AI SDK LOGS</span></div>
-            <div class="terminal-body" id="terminal-body"></div>
-          </div>
-        </aside>
-      </div>
-    </main>
-
-  </div>
-
-  <script src="app.js"></script>
-</body>
+    <!--ANALYTICS_SCRIPTS-->
+    <script type="module" src="/src/spa/entry.web.tsx"></script>
+  </body>
 </html>
